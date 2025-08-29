@@ -8,38 +8,47 @@ public class Board : MonoBehaviour
     public Transform boardParent;
     public GameObject numberPanel;
     public Button[] numberButtons;
+    public Button clearButton;
+    public Color highlightColor = Color.white;
+    public Color sameNumberColor = Color.white;
 
     private Cell[,] cells = new Cell[9, 9];
     private Cell selectedCell;
+    private PuzzleGenerator generator;
+    private int[,] solution;
 
     void Start()
     {
-        GenerateBoard();
+        InitializeCells();
         SetupNumberPanel();
+
+        generator = new PuzzleGenerator();
+        int[,] puzzle = generator.GeneratePuzzle(40, out solution);
+        ApplyPuzzle(puzzle);
     }
 
-    public void GenerateBoard()
+    private void InitializeCells()
     {
-        int[,] initialNumbers = new int[9, 9] {
-            {5,0,0,0,0,0,0,1,0},
-            {0,0,0,0,7,0,0,0,0},
-            {0,0,0,0,0,0,6,0,0},
-            {0,0,0,1,0,0,0,0,0},
-            {0,0,0,0,0,5,0,0,0},
-            {0,0,0,0,0,0,0,0,3},
-            {0,0,0,0,4,0,0,0,0},
-            {0,0,2,0,0,0,0,0,0},
-            {0,8,0,0,0,0,0,0,0}
-        };
-
         for (int r = 0; r < 9; r++)
         {
             for (int c = 0; c < 9; c++)
             {
                 GameObject cellObj = Instantiate(cellPrefab, boardParent);
                 Cell cell = cellObj.GetComponent<Cell>();
-                cell.Init(r, c, OnCellClicked, initialNumbers[r, c]);
+                cell.Init(r, c, OnCellClicked);
                 cells[r, c] = cell;
+            }
+        }
+    }
+
+    private void ApplyPuzzle(int[,] puzzle)
+    {
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if (puzzle[r, c] != 0)
+                    cells[r, c].SetFixedNumber(puzzle[r, c]);
             }
         }
     }
@@ -53,18 +62,102 @@ public class Board : MonoBehaviour
             int number = int.Parse(btn.GetComponentInChildren<TMP_Text>().text);
             btn.onClick.AddListener(() => OnNumberSelected(number));
         }
+
+        clearButton.onClick.AddListener(() => OnNumberSelected(0));
     }
 
     public void OnCellClicked(Cell cell)
     {
         selectedCell = cell;
         numberPanel.SetActive(true);
+        ResetAllHighlights();
+
+        if (cell.IsFixed)
+        {
+            int num = int.Parse(cell.numberText.text);
+            HighlightNumberAndCross(num, cell.Row, cell.Col);
+        }
     }
 
     public void OnNumberSelected(int number)
     {
-        if (selectedCell != null)
-            selectedCell.SetNumber(number);
+        if (selectedCell != null && !selectedCell.IsFixed)
+        {
+            int r = selectedCell.Row;
+            int c = selectedCell.Col;
+
+            if (number == 0)
+            {
+                selectedCell.ClearNumber();
+            }
+            else if (number != solution[r, c])
+            {
+                selectedCell.ClearNumber();
+                selectedCell.ShowError();
+            }
+            else
+            {
+                selectedCell.SetNumber(number);
+            }
+
+            if (IsBoardFull())
+            {
+                Debug.Log("Å¬¸®¾î!");
+            }
+        }
+
         numberPanel.SetActive(false);
+    }
+
+    private bool IsBoardFull()
+    {
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if (string.IsNullOrEmpty(cells[r, c].numberText.text))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private void HighlightNumberAndCross(int number, int clickedRow, int clickedCol)
+    {
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                cells[r, c].ResetColor();
+
+                if (cells[r, c].numberText.text == number.ToString())
+                    cells[r, c].Highlight(sameNumberColor);
+            }
+        }
+
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if (cells[r, c].numberText.text == number.ToString())
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if (cells[r, i].numberText.text != number.ToString())
+                            cells[r, i].Highlight(highlightColor);
+
+                        if (cells[i, c].numberText.text != number.ToString())
+                            cells[i, c].Highlight(highlightColor);
+                    }
+                }
+            }
+        }
+    }
+
+    private void ResetAllHighlights()
+    {
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++)
+                cells[r, c].ResetColor();
     }
 }

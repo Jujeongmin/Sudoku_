@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,10 +9,23 @@ public class Cell : MonoBehaviour
     public TMP_Text numberText;
 
     private Button button;
+    private Image background;
     private int row;
     private int col;
     private bool isFixed = false;
     private Action<Cell> onClick;
+
+    private Color defaultColor = Color.white;
+
+    public int Row => row;
+    public int Col => col;
+    public bool IsFixed => isFixed;
+
+    private void Awake()
+    {
+        background = GetComponent<Image>();
+        defaultColor = background.color;
+    }
 
     public void Init(int r, int c, Action<Cell> clickCallback, int initNumber = 0)
     {
@@ -20,16 +34,11 @@ public class Cell : MonoBehaviour
         onClick = clickCallback;
         button = GetComponent<Button>();
 
-        button.onClick.AddListener(() =>
-        {
-            if (!isFixed) onClick(this);
-        });
+        button.onClick.AddListener(() => onClick(this));
 
         if (initNumber != 0)
         {
-            numberText.text = initNumber.ToString();
-            isFixed = true;
-            numberText.color = Color.gray;
+            SetFixedNumber(initNumber);
         }
         else
         {
@@ -42,6 +51,48 @@ public class Cell : MonoBehaviour
         if (!isFixed)
         {
             numberText.text = number.ToString();
+            background.color = defaultColor;
         }
+    }
+
+    public void ShowError()
+    {
+        if (!isFixed)
+        {
+            StartCoroutine(FlashError());
+        }
+    }
+
+    private IEnumerator FlashError()
+    {
+        background.color = Color.red;
+        yield return new WaitForSeconds(.5f);
+        background.color = defaultColor;
+    }
+
+    public void ClearNumber()
+    {
+        if (!isFixed)
+        {
+            numberText.text = "";
+            background.color = defaultColor;
+        }
+    }
+
+    public void SetFixedNumber(int number)
+    {
+        numberText.text = number.ToString();
+        isFixed = true;
+        numberText.color = Color.gray;
+    }
+
+    public void Highlight(Color color)
+    {
+        background.color = color;
+    }
+
+    public void ResetColor()
+    {
+        background.color = defaultColor;
     }
 }
