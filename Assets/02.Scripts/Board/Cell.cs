@@ -50,8 +50,9 @@ public class Cell : MonoBehaviour
     {
         if (!isFixed)
         {
-            numberText.text = number.ToString();
+            numberText.text = number == 0 ? "" : number.ToString();
             background.color = defaultColor;
+            numberText.color = Color.black;
         }
     }
 
@@ -70,12 +71,14 @@ public class Cell : MonoBehaviour
         background.color = defaultColor;
     }
 
-    public void ClearNumber()
+    public void ClearNumber(bool force = false)
     {
-        if (!isFixed)
+        if (!isFixed || force)
         {
             numberText.text = "";
             background.color = defaultColor;
+            isFixed = false;
+            numberText.color = Color.black;
         }
     }
 

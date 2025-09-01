@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,11 +12,14 @@ public class Board : MonoBehaviour
     public Button clearButton;
     public Color highlightColor = Color.white;
     public Color sameNumberColor = Color.white;
+    public Color selectedCellColor = Color.gray;
 
     private Cell[,] cells = new Cell[9, 9];
     private Cell selectedCell;
     private PuzzleGenerator generator;
     private int[,] solution;
+
+    public event Action OnGameCleared;
 
     void Start()
     {
@@ -72,6 +76,8 @@ public class Board : MonoBehaviour
         numberPanel.SetActive(true);
         ResetAllHighlights();
 
+        cell.Highlight(selectedCellColor);
+
         if (cell.IsFixed)
         {
             int num = int.Parse(cell.numberText.text);
@@ -100,13 +106,31 @@ public class Board : MonoBehaviour
                 selectedCell.SetNumber(number);
             }
 
-            if (IsBoardFull())
-            {
-                Debug.Log("Å¬¸®¾î!");
-            }
+            CheckGameClear();
         }
 
         numberPanel.SetActive(false);
+    }
+
+    private void CheckGameClear()
+    {
+        if (IsBoardFull() && IsPuzzleSolved())
+        {
+            OnGameCleared?.Invoke();
+        }
+    }
+
+    private bool IsPuzzleSolved()
+    {
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if (cells[r, c].numberText.text != solution[r, c].ToString()) return false;
+            }
+        }
+
+        return true;
     }
 
     private bool IsBoardFull()
@@ -159,5 +183,20 @@ public class Board : MonoBehaviour
         for (int r = 0; r < 9; r++)
             for (int c = 0; c < 9; c++)
                 cells[r, c].ResetColor();
+    }
+
+    public void StartNewGame(int emptyCount)
+    {
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                cells[r, c].ClearNumber(true);
+                cells[r, c].ResetColor();
+            }
+        }
+
+        int[,] puzzle = generator.GeneratePuzzle(emptyCount, out solution);
+        ApplyPuzzle(puzzle);
     }
 }
