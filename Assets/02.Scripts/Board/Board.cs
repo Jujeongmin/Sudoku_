@@ -13,6 +13,10 @@ public class Board : MonoBehaviour
     public Color highlightColor = Color.white;
     public Color sameNumberColor = Color.white;
     public Color selectedCellColor = Color.gray;
+    public bool isMemoMode = false;
+    public Button memoButton;
+    public Color memoButtonColor = Color.yellow;
+    public Color normalButtonColor = Color.white;
 
     private Cell[,] cells = new Cell[9, 9];
     private Cell selectedCell;
@@ -82,31 +86,52 @@ public class Board : MonoBehaviour
         {
             int num = int.Parse(cell.numberText.text);
             HighlightNumberAndCross(num, cell.Row, cell.Col);
+            cell.SetHighlightedNumber(num);
         }
+        else
+        {
+            cell.SetHighlightedNumber(0);
+        }
+
+        UpdateNumberPanel();
     }
 
     public void OnNumberSelected(int number)
     {
         if (selectedCell != null && !selectedCell.IsFixed)
         {
-            int r = selectedCell.Row;
-            int c = selectedCell.Col;
-
-            if (number == 0)
+            if (isMemoMode)
             {
-                selectedCell.ClearNumber();
-            }
-            else if (number != solution[r, c])
-            {
-                selectedCell.ClearNumber();
-                selectedCell.ShowError();
+                if (selectedCell.memoText[number - 1].text != "")
+                {
+                    selectedCell.RemoveMemo(number);
+                }
+                else
+                {
+                    selectedCell.AddMemo(number);
+                }
             }
             else
             {
-                selectedCell.SetNumber(number);
-            }
+                int r = selectedCell.Row;
+                int c = selectedCell.Col;
 
-            CheckGameClear();
+                if (number == 0)
+                {
+                    selectedCell.ClearNumber();
+                }
+                else if (number != solution[r, c])
+                {
+                    selectedCell.ClearNumber();
+                    selectedCell.ShowError();
+                }
+                else
+                {
+                    selectedCell.SetNumber(number);
+                }
+
+                CheckGameClear();
+            }
         }
 
         numberPanel.SetActive(false);
@@ -198,5 +223,58 @@ public class Board : MonoBehaviour
 
         int[,] puzzle = generator.GeneratePuzzle(emptyCount, out solution);
         ApplyPuzzle(puzzle);
+    }
+
+    public void UpdateNumberPanel()
+    {
+        if (selectedCell == null) return;
+
+        int[] counts = new int[10];
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if (int.TryParse(cells[r, c].numberText.text, out int num))
+                {
+                    counts[num]++;
+                }
+            }
+        }
+
+        for (int i = 0; i < numberButtons.Length; i++)
+        {
+            int num = i + 1;
+            Button btn = numberButtons[i];
+            TMP_Text btnText = btn.GetComponentInChildren<TMP_Text>();
+
+            if (counts[num] >= 9)
+            {
+                btn.interactable = false;
+                btnText.color = Color.gray;
+            }
+            else
+            {
+                btn.interactable = true;
+                btnText.color = Color.black;
+            }
+        }
+    }
+
+    public void ToggleMemoMode()
+    {
+        isMemoMode = !isMemoMode;
+
+        var colors = memoButton.colors;
+        if (isMemoMode)
+        {
+            memoButton.GetComponentInChildren<TMP_Text>().text = "메모중";
+            colors.normalColor = memoButtonColor;
+        }
+        else
+        {
+            memoButton.GetComponentInChildren<TMP_Text>().text = "메모";
+            colors.normalColor = normalButtonColor;
+        }
+        memoButton.colors = colors;
     }
 }
