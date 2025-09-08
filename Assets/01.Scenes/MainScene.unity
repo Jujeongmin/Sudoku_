@@ -3802,7 +3802,7 @@ MonoBehaviour:
   clearButton: {fileID: 23460137}
   highlightColor: {r: 1, g: 1, b: 1, a: 0.78431374}
   sameNumberColor: {r: 1, g: 1, b: 1, a: 0.039215688}
-  selectedCellColor: {r: 0.509434, g: 0.509434, b: 0.509434, a: 0.39215687}
+  selectedCellColor: {r: 1, g: 1, b: 1, a: 0.19607843}
   isMemoMode: 0
   memoButton: {fileID: 1233684465}
   memoButtonColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}

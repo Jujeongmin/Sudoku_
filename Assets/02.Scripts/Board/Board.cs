@@ -82,15 +82,20 @@ public class Board : MonoBehaviour
 
         cell.Highlight(selectedCellColor);
 
-        if (cell.IsFixed)
+        int selectedNumber = 0;
+        if (!string.IsNullOrEmpty(cell.numberText.text))
         {
-            int num = int.Parse(cell.numberText.text);
-            HighlightNumberAndCross(num, cell.Row, cell.Col);
-            cell.SetHighlightedNumber(num);
+            selectedNumber = int.Parse(cell.numberText.text);
         }
-        else
+
+        foreach (var c in cells)
         {
-            cell.SetHighlightedNumber(0);
+            c.SetHighlightedNumber(selectedNumber);
+        }
+
+        if (cell.IsFixed && selectedNumber != 0)
+        {
+            HighlightNumberAndCross(selectedNumber, cell.Row, cell.Col);
         }
 
         UpdateNumberPanel();
@@ -128,13 +133,36 @@ public class Board : MonoBehaviour
                 else
                 {
                     selectedCell.SetNumber(number);
+
+                    RemoveMemo(number, r, c);
                 }
 
                 CheckGameClear();
             }
         }
+    }
 
-        numberPanel.SetActive(false);
+    private void RemoveMemo(int number, int row, int col)
+    {
+        int startRow = (row / 3) * 3;
+        int startCol = (col / 3) * 3;
+
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if (r == row && c == col) continue;
+
+                bool sameRow = r == row;
+                bool sameCol = c == col;
+                bool sameBlock = r >= startRow && r < startRow + 3 && c >= startCol && c < startCol + 3;
+
+                if (sameRow || sameCol || sameBlock)
+                {
+                    cells[r, c].RemoveMemo(number);
+                }
+            }
+        }
     }
 
     private void CheckGameClear()
@@ -269,11 +297,17 @@ public class Board : MonoBehaviour
         {
             memoButton.GetComponentInChildren<TMP_Text>().text = "메모중";
             colors.normalColor = memoButtonColor;
+            colors.highlightedColor = memoButtonColor;
+            colors.pressedColor = memoButtonColor;
+            colors.selectedColor = memoButtonColor;
         }
         else
         {
             memoButton.GetComponentInChildren<TMP_Text>().text = "메모";
             colors.normalColor = normalButtonColor;
+            colors.highlightedColor = normalButtonColor;
+            colors.pressedColor = normalButtonColor;
+            colors.selectedColor = normalButtonColor;
         }
         memoButton.colors = colors;
     }

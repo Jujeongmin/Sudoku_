@@ -123,10 +123,12 @@ public class Cell : MonoBehaviour
                 if (i + 1 == highlightedNumber)
                 {
                     memoText[i].color = Color.black;
+                    memoText[i].fontStyle = FontStyles.Bold;
                 }
                 else
                 {
                     memoText[i].color = Color.gray;
+                    memoText[i].fontStyle = FontStyles.Normal;
                 }
 
                 memoText[i].text = (i + 1).ToString();
