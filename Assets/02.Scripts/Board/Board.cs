@@ -27,6 +27,8 @@ public class Board : MonoBehaviour
 
     void Start()
     {
+        if (!GManager.Instance.IsModeManager.isSelcetFlag) return;
+
         InitializeCells();
         SetupNumberPanel();
 
