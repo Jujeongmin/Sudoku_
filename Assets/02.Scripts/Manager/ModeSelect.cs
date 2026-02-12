@@ -2,11 +2,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class ModeManager : MonoBehaviour
+public class ModeSelect : MonoBehaviour
 {
-    public Button easyButton;
-    public Button mediumButton;
-    public Button hardButton;
+    [SerializeField] Button easyButton;
+    [SerializeField] Button mediumButton;
+    [SerializeField] Button hardButton;
 
     void Start()
     {

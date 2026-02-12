@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class BoardNPanel : MonoBehaviour
 {
-    public Board board;
-    public GameObject clearPanel;
+    [SerializeField] Board board;
+    [SerializeField] GameObject clearPanel;
 
     private void Start()
     {

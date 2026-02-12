@@ -5,23 +5,23 @@ using UnityEngine.UI;
 
 public class Board : MonoBehaviour
 {
-    public GameObject cellPrefab;
-    public Transform boardParent;
-    public GameObject numberPanel;
-    public Button[] numberButtons;
-    public Button clearButton;
-    public Color highlightColor = Color.white;
-    public Color sameNumberColor = Color.white;
-    public Color selectedCellColor = Color.gray;
-    public bool isMemoMode = false;
-    public Button memoButton;
-    public Color memoButtonColor = Color.yellow;
-    public Color normalButtonColor = Color.white;
+    [SerializeField] GameObject cellPrefab;
+    [SerializeField] Transform boardParent;
+    [SerializeField] GameObject numberPanel;
+    [SerializeField] Button[] numberButtons;
+    [SerializeField] Button clearButton;
+    [SerializeField] Color highlightColor = Color.white;
+    [SerializeField] Color sameNumberColor = Color.white;
+    [SerializeField] Color selectedCellColor = Color.gray;
+    [SerializeField] bool isMemoMode = false;
+    [SerializeField] Button memoButton;
+    [SerializeField] Color memoButtonColor = Color.yellow;
+    [SerializeField] Color normalButtonColor = Color.white;
 
-    private Cell[,] cells = new Cell[9, 9];
-    private Cell selectedCell;
-    private PuzzleGenerator generator;
-    private int[,] solution;
+    Cell[,] cells = new Cell[9, 9];
+    Cell selectedCell;
+    PuzzleGenerator generator;
+    int[,] solution;
 
     public event Action OnGameCleared;
 

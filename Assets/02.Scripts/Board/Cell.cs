@@ -10,16 +10,16 @@ public class Cell : MonoBehaviour
     public TMP_Text numberText;
     public TMP_Text[] memoText = new TMP_Text[9];
 
-    private Button button;
-    private Image background;
-    private int row;
-    private int col;
-    private bool isFixed = false;
-    private Action<Cell> onClick;
+    Button button;
+    Image background;
+    int row;
+    int col;
+    bool isFixed = false;
+    Action<Cell> onClick;
 
-    private Color defaultColor = Color.white;
-    private HashSet<int> memoNumbers = new();
-    private int highlightedNumber = 0;
+    Color defaultColor = Color.white;
+    HashSet<int> memoNumbers = new();
+    int highlightedNumber = 0;
 
     public int Row => row;
     public int Col => col;
