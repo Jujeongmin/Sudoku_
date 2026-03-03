@@ -1,9 +1,10 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class Board : MonoBehaviour
+public class BoardManager : MonoBehaviour
 {
     [SerializeField] GameObject cellPrefab;
     [SerializeField] Transform boardParent;
@@ -11,12 +12,15 @@ public class Board : MonoBehaviour
     [SerializeField] Button[] numberButtons;
     [SerializeField] Button clearButton;
     [SerializeField] Color highlightColor = Color.white;
-    [SerializeField] Color sameNumberColor = Color.white;
+    [SerializeField] Color sameNumberColor = Color.black;
     [SerializeField] Color selectedCellColor = Color.gray;
     [SerializeField] bool isMemoMode = false;
     [SerializeField] Button memoButton;
     [SerializeField] Color memoButtonColor = Color.yellow;
     [SerializeField] Color normalButtonColor = Color.white;
+    [SerializeField] GameObject clearPanel;
+
+    public GameObject IsClearPanel { get { return clearPanel; } }
 
     Cell[,] cells = new Cell[9, 9];
     Cell selectedCell;
@@ -25,16 +29,29 @@ public class Board : MonoBehaviour
 
     public event Action OnGameCleared;
 
+    private void Awake()
+    {
+        if (GManager.Instance != null)
+        {
+            GManager.Instance.GetBoardManager(this);
+        }
+    }
+
     void Start()
     {
-        if (!GManager.Instance.IsModeManager.isSelcetFlag) return;
-
         InitializeCells();
         SetupNumberPanel();
 
         generator = new PuzzleGenerator();
         int[,] puzzle = generator.GeneratePuzzle(40, out solution);
         ApplyPuzzle(puzzle);
+
+        int emptyCount = PlayerPrefs.GetInt("SelectedMode", 30);
+        StartNewGame(emptyCount);
+
+        OnGameCleared += GManager.Instance.ShowClearPanel;
+
+        clearPanel.SetActive(false);
     }
 
     private void InitializeCells()
@@ -312,5 +329,10 @@ public class Board : MonoBehaviour
             colors.selectedColor = normalButtonColor;
         }
         memoButton.colors = colors;
+    }
+
+    public void ClearBoard()
+    {
+        SceneManager.LoadScene("StartScene");
     }
 }

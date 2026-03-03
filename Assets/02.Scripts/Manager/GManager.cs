@@ -3,13 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class GManager : MonoBehaviour
 {
-    [SerializeField] Board board;
-
-    [SerializeField] GameObject clearPanel;
-
-    [SerializeField] ModeManager modeManager;
-
-    public ModeManager IsModeManager { get { return modeManager; } }
+    BoardManager boardManager;
 
     public static GManager Instance { get; private set; } = null;
 
@@ -27,30 +21,18 @@ public class GManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    public void GetBoardManager(BoardManager manager)
     {
-        if (!modeManager.isSelcetFlag) return;
-
-        int emptyCount = PlayerPrefs.GetInt("SelectedMode", modeManager.IsCellEmpty);
-        board.StartNewGame(emptyCount);
-
-        board.OnGameCleared += ShowClearPanel;
-
-        clearPanel.SetActive(false);
+        boardManager = manager;       
     }
 
-    private void ShowClearPanel()
+    public void ShowClearPanel()
     {
-        clearPanel.SetActive(true);
+        if (boardManager.IsClearPanel != null) boardManager.IsClearPanel.SetActive(true);
     }
 
     public void HideClearPanel()
     {
-        clearPanel.SetActive(false);
-    }
-
-    public void ClearBoard()
-    {
-        SceneManager.LoadScene("StartScene");
-    }
+        if (boardManager.IsClearPanel != null) boardManager.IsClearPanel.SetActive(false);
+    }    
 }
